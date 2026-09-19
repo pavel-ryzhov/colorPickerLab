@@ -2,22 +2,14 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"strconv"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 )
-
-type AppState struct {
-	isUpdating         bool
-	slR, slG, slB      *widget.Slider
-	slC, slM, slY, slK *widget.Slider
-	slH, slL, slS      *widget.Slider
-	enR, enG, enB      *widget.Entry
-	enC, enM, enY, enK *widget.Entry
-	enH, enL, enS      *widget.Entry
-}
 
 func (app *AppState) createChannel(name string, mn, mx float64, onChange func()) (*widget.Slider, *widget.Entry, *fyne.Container) {
 	slider := widget.NewSlider(mn, mx)
@@ -68,6 +60,29 @@ func (app *AppState) buildRightPanel() *fyne.Container {
 	return container.NewVBox(rgbCard, cmykCard, hlsCard)
 }
 
-func (app *AppState) updateFromRGB()  {}
-func (app *AppState) updateFromCMYK() {}
-func (app *AppState) updateFromHLS()  {}
+func (app *AppState) buildLeftPanel() *fyne.Container {
+	app.colorRect = canvas.NewRectangle(color.RGBA{A: 255})
+	app.colorRect.SetMinSize(fyne.NewSize(100, 80))
+
+	app.enHex = widget.NewEntry()
+	app.enHex.SetText("#000000")
+	app.enHex.OnChanged = func(s string) {
+		if !app.isUpdating {
+			app.updateFromHEX(s)
+		}
+	}
+	hexRow := container.NewBorder(nil, nil, widget.NewLabel("HEX:"), nil, app.enHex)
+
+	palette := NewCustomPalette(func(hls HLS) {
+		if !app.isUpdating {
+			app.setHLS(hls)
+			app.updateFromHLS()
+		}
+	})
+
+	paletteContainer := container.NewStack(palette)
+
+	bottomBox := container.NewVBox(hexRow, app.colorRect)
+
+	return container.NewBorder(nil, bottomBox, nil, nil, paletteContainer)
+}

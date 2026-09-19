@@ -10,7 +10,7 @@ func main() {
 	a := app.New()
 	w := a.NewWindow("Lab1 (CMYK, RGB, HLS) by Pavel Ryzhou")
 	appState := &AppState{}
-	leftPanel := container.NewVBox()
+	leftPanel := appState.buildLeftPanel()
 	rightPanel := appState.buildRightPanel()
 	split := container.NewHSplit(leftPanel, rightPanel)
 	split.Offset = 0.4
