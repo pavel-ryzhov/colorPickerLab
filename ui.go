@@ -11,10 +11,28 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func (app *AppState) createChannel(name string, mn, mx float64, onChange func()) (*widget.Slider, *widget.Entry, *fyne.Container) {
+type FocusEntry struct {
+	widget.Entry
+	OnFocusLost func()
+}
+
+func NewFocusEntry() *FocusEntry {
+	e := &FocusEntry{}
+	e.ExtendBaseWidget(e)
+	return e
+}
+
+func (e *FocusEntry) FocusLost() {
+	e.Entry.FocusLost()
+	if e.OnFocusLost != nil {
+		e.OnFocusLost()
+	}
+}
+
+func (app *AppState) createChannel(name string, mn, mx float64, onChange func()) (*widget.Slider, *FocusEntry, *fyne.Container) {
 	slider := widget.NewSlider(mn, mx)
 	slider.Step = 1
-	entry := widget.NewEntry()
+	entry := NewFocusEntry()
 	entry.SetText(fmt.Sprintf("%.0f", mn))
 	label := widget.NewLabel(name)
 	slider.OnChanged = func(val float64) {
@@ -22,6 +40,15 @@ func (app *AppState) createChannel(name string, mn, mx float64, onChange func())
 		if !app.isUpdating {
 			onChange()
 		}
+	}
+	entry.OnFocusLost = func() {
+		val, err := strconv.ParseFloat(entry.Text, 64)
+		if err != nil || val < mn || val > mx {
+			entry.SetText(fmt.Sprintf("%.0f", slider.Value))
+		}
+	}
+	entry.OnSubmitted = func(text string) {
+		entry.OnFocusLost()
 	}
 	entry.OnChanged = func(text string) {
 		val, err := strconv.ParseFloat(text, 64)
@@ -64,12 +91,21 @@ func (app *AppState) buildLeftPanel() *fyne.Container {
 	app.colorRect = canvas.NewRectangle(color.RGBA{A: 255})
 	app.colorRect.SetMinSize(fyne.NewSize(100, 80))
 
-	app.enHex = widget.NewEntry()
+	app.enHex = NewFocusEntry()
 	app.enHex.SetText("#000000")
 	app.enHex.OnChanged = func(s string) {
 		if !app.isUpdating {
 			app.updateFromHEX(s)
 		}
+	}
+	app.enHex.OnFocusLost = func() {
+		_, err := HEXToRGB(app.enHex.Text)
+		if err != nil {
+			app.enHex.SetText(app.getRGB().ToHEX())
+		}
+	}
+	app.enHex.OnSubmitted = func(text string) {
+		app.enHex.OnFocusLost()
 	}
 	hexRow := container.NewBorder(nil, nil, widget.NewLabel("HEX:"), nil, app.enHex)
 

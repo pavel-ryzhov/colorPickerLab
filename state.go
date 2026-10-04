@@ -12,11 +12,11 @@ type AppState struct {
 	slR, slG, slB      *widget.Slider
 	slC, slM, slY, slK *widget.Slider
 	slH, slL, slS      *widget.Slider
-	enR, enG, enB      *widget.Entry
-	enC, enM, enY, enK *widget.Entry
-	enH, enL, enS      *widget.Entry
+	enR, enG, enB      *FocusEntry
+	enC, enM, enY, enK *FocusEntry
+	enH, enL, enS      *FocusEntry
 	colorRect          *canvas.Rectangle
-	enHex              *widget.Entry
+	enHex              *FocusEntry
 }
 
 func (app *AppState) setCMYK(cmyk CMYK) {
