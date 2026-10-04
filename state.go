@@ -17,6 +17,7 @@ type AppState struct {
 	enH, enL, enS      *FocusEntry
 	colorRect          *canvas.Rectangle
 	enHex              *FocusEntry
+	palette            *CustomPalette
 }
 
 func (app *AppState) setCMYK(cmyk CMYK) {
@@ -73,6 +74,7 @@ func (app *AppState) updateFromRGB() {
 
 	app.setCMYK(cmyk)
 	app.setHLS(hls)
+	app.palette.SetColor(hls)
 
 	app.updateLeftPanel(rgb)
 }
@@ -87,6 +89,7 @@ func (app *AppState) updateFromCMYK() {
 
 	app.setRGB(rgb)
 	app.setHLS(hls)
+	app.palette.SetColor(hls)
 
 	app.updateLeftPanel(rgb)
 }
@@ -101,6 +104,7 @@ func (app *AppState) updateFromHLS() {
 
 	app.setRGB(rgb)
 	app.setCMYK(cmyk)
+	app.palette.SetColor(hls)
 
 	app.updateLeftPanel(rgb)
 }
@@ -126,6 +130,7 @@ func (app *AppState) updateFromHEX(hexStr string) {
 	app.setRGB(rgb)
 	app.setCMYK(cmyk)
 	app.setHLS(hls)
+	app.palette.SetColor(hls)
 
 	app.colorRect.FillColor = color.RGBA{R: rgb.R, G: rgb.G, B: rgb.B, A: 255}
 	app.colorRect.Refresh()

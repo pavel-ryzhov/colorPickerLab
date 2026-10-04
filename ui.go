@@ -56,7 +56,7 @@ func (app *AppState) createChannel(name string, mn, mx float64, onChange func())
 			slider.SetValue(val)
 		}
 	}
-	entrySize := container.NewGridWrap(fyne.NewSize(50, 35), entry)
+	entrySize := container.NewGridWrap(fyne.NewSize(50, 37), entry)
 	row := container.NewBorder(nil, nil, label, entrySize, slider)
 	return slider, entry, row
 }
@@ -109,16 +109,14 @@ func (app *AppState) buildLeftPanel() *fyne.Container {
 	}
 	hexRow := container.NewBorder(nil, nil, widget.NewLabel("HEX:"), nil, app.enHex)
 
-	palette := NewCustomPalette(func(hls HLS) {
+	app.palette = NewCustomPalette(func(hls HLS) {
 		if !app.isUpdating {
 			app.setHLS(hls)
 			app.updateFromHLS()
 		}
 	})
 
-	paletteContainer := container.NewStack(palette)
-
 	bottomBox := container.NewVBox(hexRow, app.colorRect)
 
-	return container.NewBorder(nil, bottomBox, nil, nil, paletteContainer)
+	return container.NewBorder(nil, bottomBox, nil, nil, app.palette.Container)
 }
