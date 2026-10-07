@@ -16,5 +16,6 @@ func main() {
 	split.Offset = 0.4
 	w.SetContent(split)
 	w.Resize(fyne.NewSize(800, 600))
+	appState.updateFromRGB()
 	w.ShowAndRun()
 }
